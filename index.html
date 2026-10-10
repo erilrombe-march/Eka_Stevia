@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LOVE JAMILAH ❤️</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    overflow: hidden;
+    background: #050008;
+    color: #ffb6c1;
+    font-family: "Times New Roman", serif;
+}
+
+canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    text-align: center;
+    pointer-events: none;
+}
+
+h1 {
+    margin: 0 0 12px;
+    color: #ff1493;
+    font-size: clamp(24px, 5vw, 42px);
+    text-shadow: 0 0 15px #ff1493;
+}
+
+#lyrics {
+    position: absolute;
+    top: 8%;
+    left: 5%;
+    right: 5%;
+    min-height: 50px;
+    color: #ffd1dc;
+    font-size: clamp(15px, 3vw, 23px);
+    font-weight: bold;
+    text-shadow: 0 0 12px #ff1493;
+}
+
+#startButton {
+    pointer-events: auto;
+    border: 1px solid #ff69b4;
+    border-radius: 30px;
+    padding: 14px 28px;
+    margin-top: 25px;
+    background: linear-gradient(135deg, #ff1493, #a00070);
+    color: white;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 0 25px #ff1493;
+}
+
+#startButton:hover {
+    transform: scale(1.05);
+}
+
+#status {
+    margin-top: 12px;
+    color: #ffb6c1;
+    font-size: 13px;
+}
+
+#name {
+    margin-top: 12px;
+    color: #ff1493;
+    font-size: clamp(23px, 5vw, 38px);
+    font-weight: bold;
+    text-shadow: 0 0 15px #ff1493;
+    letter-spacing: 2px;
+}
+
+.hidden {
+    display: none !important;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="heartCanvas"></canvas>
+
+<div class="overlay">
+    <div id="lyrics">❤️ Sebuah pesan untukmu ❤️</div>
+
+    <div>
+        <h1>LOVE JAMILAH ❤️</h1>
+        <div id="name">EKA STEVIA</div>
+
+        <button id="startButton">❤️ MULAI ❤️</button>
+        <div id="status">Tekan tombol untuk memulai musik dan animasi</div>
+    </div>
+</div>
+
+<audio id="music" preload="auto">
+    <source src="./1010.MP3" type="audio/mpeg">
+    Browser kamu tidak mendukung audio.
+</audio>
+
+<script>
+const canvas = document.getElementById("heartCanvas");
+const ctx = canvas.getContext("2d");
+const music = document.getElementById("music");
+const lyricsElement = document.getElementById("lyrics");
+const startButton = document.getElementById("startButton");
+const statusElement = document.getElementById("status");
+
+let width, height, centerX, centerY, scale;
+let animationStarted = false;
+let animationFrame = 0;
+
+const lyricsList = [
+    [0,  "🎵 I Love You"],
+    [1,  "Ingin Rasanya Hatiku"],
+    [4,  "Memeluk dan Menciummu"],
+    [7,  "Dan Ingin Kukatakan Cinta Kamu"],
+    [12, "Ingin Hati Ini Lebih Dekat Lagi Denganmu"],
+    [18, "Dan Kukatakan"],
+    [22, "I Will Say I Love You"],
+    [28, ""],
+    [34, "Di Hari Berikutnya (our next day)"],
+    [39, "Kujumpa Lagi Denganmu"],
+    [42, "When I Saw You (Kau Semakin Mempesona)"],
+    [48, "Senyuman di Bibirmu Membuatku Tergila-gila"],
+    [58, "Khayalku Membayangkan Kapankah Kau Jadi Milikku"],
+    [68, "Khayalku Kau Tercipta Hanyalah Untuk"],
+    [77, "Hanya Untukku (Hanya Untukku)"],
+    [81, "❤️❤️❤️"]
+];
+
+function resizeCanvas() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    width = window.innerWidth;
+    height = window.innerHeight;
+
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    centerX = width / 2;
+    centerY = height / 2;
+
+    scale = Math.min(width / 38, height / 38, 15);
+}
+
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
+
+function heartPoint(angle, size) {
+    const x = 16 * Math.pow(Math.sin(angle), 3);
+    const y =
+        13 * Math.cos(angle) -
+        5 * Math.cos(2 * angle) -
+        2 * Math.cos(3 * angle) -
+        Math.cos(4 * angle);
+
+    return {
+        x: centerX + x * size,
+        y: centerY - y * size
+    };
+}
+
+const stars = Array.from({ length: 100 }, () => ({
+    x: Math.random(),
+    y: Math.random(),
+    size: Math.random() * 2 + 0.3,
+    alpha: Math.random()
+}));
+
+function drawStars() {
+    for (const star of stars) {
+        const twinkle =
+            0.3 + 0.7 *
+            Math.abs(Math.sin(animationFrame * 0.025 + star.alpha * 10));
+
+        ctx.globalAlpha = twinkle;
+        ctx.fillStyle = "#ffc0e0";
+        ctx.beginPath();
+        ctx.arc(
+            star.x * width,
+            star.y * height,
+            star.size,
+            0,
+            Math.PI * 2
+        );
+        ctx.fill();
+    }
+
+    ctx.globalAlpha = 1;
+}
+
+function drawHeart() {
+    ctx.clearRect(0, 0, width, height);
+    drawStars();
+
+    const pulse = 1 + Math.sin(animationFrame * 0.055) * 0.035;
+    const heartSize = scale * pulse;
+
+    ctx.beginPath();
+
+    for (let i = 0; i <= 360; i++) {
+        const p = heartPoint(i * Math.PI / 180, heartSize);
+        if (i === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+    }
+
+    ctx.closePath();
+    ctx.strokeStyle = "#ff1493";
+    ctx.lineWidth = 2;
+    ctx.shadowBlur = 18;
+    ctx.shadowColor = "#ff1493";
+    ctx.stroke();
+
+    // Teks I LOVE YOU berulang di sepanjang kurva hati
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = `bold ${Math.max(7, Math.min(12, scale * 0.75))}px Times New Roman`;
+
+    for (let layer = 0; layer < 5; layer++) {
+        const layerScale = heartSize * (0.45 + layer * 0.12);
+        const total = 90;
+
+        for (let i = 0; i < total; i++) {
+            const angle = i * Math.PI * 2 / total;
+            const p = heartPoint(angle, layerScale);
+
+            ctx.fillStyle = layer % 2 === 0
+                ? "#ffb6c1"
+                : "#ff69b4";
+
+            ctx.globalAlpha = 0.65 + 0.35 *
+                Math.sin(animationFrame * 0.04 + i * 0.3);
+
+            ctx.fillText("I LOVE YOU", p.x, p.y);
+        }
+    }
+
+    ctx.globalAlpha = 1;
+    ctx.shadowBlur = 0;
+
+    // Nama di tengah hati
+    ctx.fillStyle = "#ff1493";
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = "#ff1493";
+    ctx.font = `bold ${Math.max(15, Math.min(24, scale * 1.5))}px Times New Roman`;
+    ctx.textAlign = "center";
+    ctx.fillText("EKA STEVIA", centerX, centerY);
+
+    ctx.shadowBlur = 0;
+}
+
+function animate() {
+    if (!animationStarted) return;
+
+    animationFrame++;
+    drawHeart();
+
+    requestAnimationFrame(animate);
+}
+
+function updateLyrics() {
+    const elapsed = music.currentTime;
+    let currentLyric = "";
+
+    for (const [timestamp, lyric] of lyricsList) {
+        if (elapsed >= timestamp) {
+            currentLyric = lyric;
+        } else {
+            break;
+        }
+    }
+
+    lyricsElement.textContent = currentLyric;
+}
+
+music.addEventListener("timeupdate", updateLyrics);
+
+music.addEventListener("ended", () => {
+    lyricsElement.textContent = "❤️❤️❤️ Terima kasih ❤️❤️❤️";
+    statusElement.textContent = "Musik selesai diputar ❤️";
+    startButton.classList.remove("hidden");
+    startButton.textContent = "❤️ PUTAR LAGI ❤️";
+});
+
+music.addEventListener("error", () => {
+    statusElement.textContent =
+        "Musik tidak ditemukan. Periksa file 1010.MP3.";
+    startButton.classList.remove("hidden");
+});
+
+startButton.addEventListener("click", async () => {
+    try {
+        await music.play();
+
+        animationStarted = true;
+        startButton.classList.add("hidden");
+        statusElement.textContent = "Musik sedang diputar ❤️";
+
+        drawHeart();
+        animate();
+    } catch (error) {
+        statusElement.textContent =
+            "Musik gagal diputar. Periksa file audio dan coba lagi.";
+        console.error(error);
+    }
+});
+
+// Gambar hati awal sebelum tombol ditekan
+drawHeart();
+</script>
+
+</body>
+</html>
