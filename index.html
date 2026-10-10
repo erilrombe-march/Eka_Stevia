@@ -151,7 +151,7 @@ const lyricsList = [
     [48, "Senyuman di Bibirmu Membuatku Tergila-gila"],
     [58, "Khayalku Membayangkan Kapankah Kau Jadi Milikku"],
     [68, "Khayalku Kau Tercipta Hanyalah Untuk"],
-    [77, "Hanya Untukku (Hanya Untukku)"],
+    [76, "Hanya Untukku"],
     [81, ""]
 ];
 
@@ -315,10 +315,7 @@ function drawName() {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
-    const fontSize = Math.max(
-        15,
-        Math.min(24, heartScale * 1.5)
-    );
+    const fontSize = 20;
 
     ctx.font = `bold ${fontSize}px Times New Roman`;
     ctx.fillStyle = "#ff1493";
@@ -408,7 +405,7 @@ startButton.addEventListener("click", async () => {
         }
 
         startButton.classList.add("hidden");
-        statusElement.textContent = "Musik sedang diputar ❤️";
+        statusElement.textContent = "";
 
         updateLyrics();
 
