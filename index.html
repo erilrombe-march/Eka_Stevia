@@ -315,7 +315,7 @@ function drawName() {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
-    const fontSize = 20;
+    const fontSize = Math.max(9, Math.min(15, heartScale * 0.9));
 
     ctx.font = `bold ${fontSize}px Times New Roman`;
     ctx.fillStyle = "#ff1493";
@@ -376,7 +376,7 @@ music.addEventListener("ended", () => {
     lyricsElement.textContent = "❤️❤️❤️";
 
     statusElement.textContent =
-        "Musik selesai diputar. Semoga kamu tersenyum ❤️";
+        "Semoga tetap tersenyum hari ini Jamilah ❤️";
 
     startButton.textContent = "❤️ PUTAR LAGI ❤️";
     startButton.classList.remove("hidden");
